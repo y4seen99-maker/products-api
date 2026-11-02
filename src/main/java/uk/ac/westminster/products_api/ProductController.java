@@ -1,7 +1,6 @@
 package uk.ac.westminster.products_api;
 
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -25,6 +24,11 @@ public class ProductController {
         return productService.getAllProducts();
     }
 
+    @GetMapping("/summaries")
+    public List<String> getSummaries() {
+        return productService.getAllSummaries();
+    }
+
     @GetMapping("/search")
     public List<Product> search(@RequestParam String name) {
         return productService.findByName(name);
@@ -37,24 +41,8 @@ public class ProductController {
     }
 
     @PostMapping
-    public Product addProduct(@RequestBody Map<String, Object> body) {
-        String name = (String) body.get("name");
-        double price = ((Number) body.get("price")).doubleValue();
-
-        // Keep one /products endpoint while allowing both Tutorial 4 subclasses
-        // to be created from JSON without losing their extra fields.
-        Product product;
-        if (body.containsKey("downloadUrl")) {
-            String downloadUrl = (String) body.get("downloadUrl");
-            double fileSizeMB = ((Number) body.get("fileSizeMB")).doubleValue();
-            product = new DigitalProduct(null, name, price, downloadUrl, fileSizeMB);
-        } else if (body.containsKey("weightKg")) {
-            double weightKg = ((Number) body.get("weightKg")).doubleValue();
-            String dimensions = (String) body.get("dimensions");
-            product = new PhysicalProduct(null, name, price, weightKg, dimensions);
-        } else {
-            product = new Product(null, name, price);
-        }
+    public Product addProduct(@RequestBody DigitalProduct product) {
+        // Tutorial 5 temporary fix: Jackson cannot instantiate abstract Product.
         return productService.addProduct(product);
     }
 
